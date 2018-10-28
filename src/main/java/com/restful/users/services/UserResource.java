@@ -37,6 +37,7 @@ public class UserResource {
 			System.out.println(user);
 			String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user); 
 			System.out.println(jsonString);
+			userDB.put(user.getId(), user);
 		} catch (JsonParseException e) { e.printStackTrace();}
 		  catch (JsonMappingException e) {e.printStackTrace();}
 		  catch (IOException e) { e.printStackTrace(); }
