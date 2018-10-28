@@ -29,6 +29,7 @@ public class UserResource {
 	}
 	
 	@POST
+	@Consumes("application/json")
 	public Response createNewUser(InputStream is) {
 		ObjectMapper mapper = new ObjectMapper(); 
 		try {
