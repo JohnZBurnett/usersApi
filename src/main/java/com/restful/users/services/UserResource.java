@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.restful.users.domain.User; 
@@ -34,10 +35,12 @@ public class UserResource {
 		ObjectMapper mapper = new ObjectMapper(); 
 		try {
 			User user = mapper.readValue(is, User.class); 
+			user.setId( idCounter.incrementAndGet());
 			System.out.println(user);
 			String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user); 
 			System.out.println(jsonString);
 			userDB.put(user.getId(), user);
+			return Response.ok(jsonString, MediaType.APPLICATION_JSON).build(); 
 		} catch (JsonParseException e) { e.printStackTrace();}
 		  catch (JsonMappingException e) {e.printStackTrace();}
 		  catch (IOException e) { e.printStackTrace(); }
