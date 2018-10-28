@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,6 +28,7 @@ public class UserResource {
 	@GET
 	public Response getAllUsers() {
 		return Response.ok().build(); 
+		
 	}
 	
 	@POST
@@ -50,12 +52,19 @@ public class UserResource {
 	
 	@GET
 	@Path("{id}")
+	@Produces("application/json")
 	public Response getOneUser(@PathParam("id") int id) {
-		final User user = userDB.get(id); 
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonString = null; 
+		try {
+			final User user = userDB.get(id); 
+			if (user == null) {
+				throw new WebApplicationException(Response.Status.NOT_FOUND); 
+			}
+			jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user); 
+		} catch (JsonMappingException e) {e.printStackTrace(); }
+		  catch (JsonProcessingException e) {e.printStackTrace(); }
 		
-		if (user == null) {
-			throw new WebApplicationException(Response.Status.NOT_FOUND); 
-		}
-		return Response.ok().build(); 
+		return Response.ok(jsonString, MediaType.APPLICATION_JSON).build(); 
 	}
 }
