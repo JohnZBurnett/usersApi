@@ -80,9 +80,12 @@ public class UserResource {
 			PreparedStatement pst = connection.prepareStatement(queryToInsertUser);
 			pst.setString(1,  user.getFirstName());
 			pst.setString(2,  user.getLastName());
-			int newUserResults = pst.executeUpdate(); 
-			System.out.println("NEW USER RESULTS: ");
-			System.out.println(newUserResults);
+			pst.execute();
+			ResultSet lastUpdatedUserResults = pst.getResultSet();
+			if(lastUpdatedUserResults.next()) {
+			   int lastUpdatedUserId = lastUpdatedUserResults.getInt(1);
+			   user.setId(lastUpdatedUserId);
+			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -100,7 +103,7 @@ public class UserResource {
 		ObjectMapper mapper = new ObjectMapper(); 
 		try (Connection connection = getConnection()) {
 			User user = mapper.readValue(is, User.class); 
-			addUserToDb(user); 
+			user = addUserToDb(user); 
 			String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user);
 			return Response.ok(jsonString, MediaType.APPLICATION_JSON).build(); 
 		} catch (JsonParseException e) { e.printStackTrace();}
