@@ -37,7 +37,7 @@ import com.restful.users.domain.User;
 public class UserResource {
 	private Map<Integer, User> userDB = new ConcurrentHashMap<Integer, User>(); 
 	private AtomicInteger idCounter = new AtomicInteger(); 
-	private String queryToInsertUser = "INSERT INTO users(id, firstName, lastName) VALUES(?, ?, ?)";
+	private String queryToInsertUser = "INSERT INTO users(firstName, lastName) VALUES(?, ?)";
 	private String queryToGetSpecificUser = "SELECT * FROM users WHERE id = ?"; 
 	public UserResource() {
 		
@@ -78,9 +78,8 @@ public class UserResource {
 	public void addUserToDb(User user) {
 		try (Connection connection = getConnection()) {
 			PreparedStatement pst = connection.prepareStatement(queryToInsertUser);
-			pst.setInt(1,  user.getId());
-			pst.setString(2,  user.getFirstName());
-			pst.setString(3,  user.getLastName());
+			pst.setString(1,  user.getFirstName());
+			pst.setString(2,  user.getLastName());
 			pst.executeUpdate(); 
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -97,7 +96,6 @@ public class UserResource {
 		ObjectMapper mapper = new ObjectMapper(); 
 		try (Connection connection = getConnection()) {
 			User user = mapper.readValue(is, User.class); 
-			user.setId( idCounter.incrementAndGet());
 			addUserToDb(user); 
 			
 			String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user);
