@@ -136,10 +136,12 @@ public class UserResource {
             throws Exception {
 	   ObjectMapper mapper = new ObjectMapper(); 
        User resultAsUser = new User(); 
+       resultSet.next(); 
        resultAsUser.setId(resultSet.getInt("id"));
        resultAsUser.setFirstName(resultSet.getString("firstName"));
        resultAsUser.setLastName(resultSet.getString("lastName"));
        String userJSONinString = mapper.writeValueAsString(resultAsUser); 
+       System.out.println(userJSONinString);
        return userJSONinString;
     }
 }
