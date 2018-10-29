@@ -28,13 +28,13 @@ import com.restful.users.domain.User;
 public class UserResource {
 	private Map<Integer, User> userDB = new ConcurrentHashMap<Integer, User>(); 
 	private AtomicInteger idCounter = new AtomicInteger(); 
+	private String queryToInsertUser = "INSERT INTO users(id, firstName, lastName) VALUES(?, ?, ?)";
 	public UserResource() {
 		
 	}
 	
 	private static Connection getConnection() throws URISyntaxException, SQLException, NullPointerException {
 	    URI dbUri = new URI(System.getenv("DATABASE_URL"));
-
 	    String username = dbUri.getUserInfo().split(":")[0];
 	    String password = dbUri.getUserInfo().split(":")[1];
 	    String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
@@ -48,6 +48,21 @@ public class UserResource {
 		
 	}
 	
+	public void addUserToDb(User user) {
+		try (Connection connection = getConnection()) {
+			PreparedStatement pst = connection.prepareStatement(queryToInsertUser);
+			pst.setInt(1,  user.getId());
+			pst.setString(2,  user.getFirstName());
+			pst.setString(3,  user.getLastName());
+			pst.executeUpdate(); 
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+	}
 	@POST
 	@Path("/dbtest")
 	public Response testPostToDb() {
@@ -79,17 +94,22 @@ public class UserResource {
 	@Consumes("application/json")
 	public Response createNewUser(InputStream is) {
 		ObjectMapper mapper = new ObjectMapper(); 
-		try {
+		try (Connection connection = getConnection()) {
 			User user = mapper.readValue(is, User.class); 
 			user.setId( idCounter.incrementAndGet());
-			System.out.println(user);
-			String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user); 
-			System.out.println(jsonString);
-			userDB.put(user.getId(), user);
+			addUserToDb(user); 
+			
+			String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user);
 			return Response.ok(jsonString, MediaType.APPLICATION_JSON).build(); 
 		} catch (JsonParseException e) { e.printStackTrace();}
 		  catch (JsonMappingException e) {e.printStackTrace();}
 		  catch (IOException e) { e.printStackTrace(); }
+		  catch (SQLException e) {
+			  e.printStackTrace(); 
+		  }
+		  catch (URISyntaxException e) {
+			  e.printStackTrace(); 
+		  }
 		
 		return Response.ok().build(); 
 	}
