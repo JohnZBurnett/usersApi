@@ -63,33 +63,7 @@ public class UserResource {
 			e.printStackTrace();
 		}
 	}
-	@POST
-	@Path("/dbtest")
-	public Response testPostToDb() {
-		try (Connection connection = getConnection()) {
-			String query = "INSERT INTO users(id, firstName, lastName) VALUES(?, ?, ?)";
-			int id = 9999; 
-			String firstName = "james";
-			String lastName = "test";
-    		PreparedStatement pst = connection.prepareStatement(query);
-    		pst.setInt(1,  id);
-    		pst.setString(2, firstName);
-    		pst.setString(3, lastName);
-    		pst.executeUpdate(); 
-    		Statement st = connection.createStatement(); 
-    		ResultSet rs = st.executeQuery("SELECT VERSION()"); 
-    		if (rs.next()) {
-    			System.out.println(rs.getString(1));
-    		}
-    	} catch (SQLException e) {
-    		System.out.println("Connection failure.:");
-    		e.printStackTrace(); 
-    	} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-		
-		return Response.ok().build(); 
-	}
+	
 	@POST
 	@Consumes("application/json")
 	public Response createNewUser(InputStream is) {
