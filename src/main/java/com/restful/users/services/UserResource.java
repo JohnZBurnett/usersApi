@@ -116,7 +116,7 @@ public class UserResource {
 	@GET
 	@Path("{id}")
 	@Produces("application/json")
-	public Response getOneUser(@PathParam("id") int id) {
+	public Response getOneUser(@PathParam("id") int id) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		JSONArray queryResultsToJSON = null; 
 		ResultSet queryResults = getUserFromDb(id); 
@@ -127,7 +127,9 @@ public class UserResource {
 			e.printStackTrace(); 
 		}
 		
-		return Response.ok(queryResultsToJSON, MediaType.APPLICATION_JSON).build(); 
+		String jsonInString = mapper.writeValueAsString(queryResultsToJSON);
+
+		return Response.ok(jsonInString, MediaType.APPLICATION_JSON).build(); 
 	}
 	
 	public static JSONArray convertToJSON(ResultSet resultSet)
