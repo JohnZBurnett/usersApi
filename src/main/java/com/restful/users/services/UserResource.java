@@ -3,9 +3,11 @@ package com.restful.users.services;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +41,7 @@ public class UserResource {
 	private AtomicInteger idCounter = new AtomicInteger(); 
 	private String queryToInsertUser = "INSERT INTO users(firstName, lastName) VALUES(?, ?) RETURNING id";
 	private String queryToGetSpecificUser = "SELECT * FROM users WHERE id = ?"; 
+	private String queryToGetAllUsers = "SELECT * FROM users";
 	public UserResource() {
 		
 	}
@@ -53,8 +56,29 @@ public class UserResource {
 	}
 	
 	@GET
-	public Response getAllUsers() {
-		return Response.ok().build(); 
+	public Response getAllUsers() throws JsonProcessingException, NullPointerException, SQLException, URISyntaxException {
+		ObjectMapper mapper = new ObjectMapper();
+		HashMap<String, ArrayList<User>> resultsMap = getAllUsersFromDb();
+		String userJSONinString = mapper.writeValueAsString(resultsMap);
+		return Response.ok(userJSONinString).build(); 
+		
+	}
+	
+	public HashMap getAllUsersFromDb() throws NullPointerException, SQLException, URISyntaxException {
+		HashMap<String, ArrayList<User>> resultsMap = new HashMap<String, ArrayList<User>>(); 
+		ArrayList userArray = new ArrayList<User>();  
+		PreparedStatement pst = getConnection().prepareStatement(queryToGetAllUsers);
+		ResultSet queryResults = pst.executeQuery(); 
+		while (queryResults.next()) {
+			User resultAsUser = new User();
+		    resultAsUser.setId(queryResults.getInt("id"));
+		    resultAsUser.setFirstName(queryResults.getString("firstName"));
+		    resultAsUser.setLastName(queryResults.getString("lastName"));
+		    userArray.add(resultAsUser); 
+		}
+		
+		resultsMap.put("users", userArray); 
+		return resultsMap; 
 		
 	}
 	
