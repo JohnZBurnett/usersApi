@@ -120,30 +120,26 @@ public class UserResource {
 		ObjectMapper mapper = new ObjectMapper();
 		JSONArray queryResultsToJSON = null; 
 		ResultSet queryResults = getUserFromDb(id); 
+		String resultJSONString = null; 
 		try {
-			queryResultsToJSON = convertToJSON(queryResults); 
+			resultJSONString = convertToJSON(queryResults); 
 			System.out.println(queryResultsToJSON);
 		} catch (Exception e) {
 			e.printStackTrace(); 
 		}
 		
-		String jsonInString = mapper.writeValueAsString(queryResultsToJSON);
 
-		return Response.ok(jsonInString, MediaType.APPLICATION_JSON).build(); 
+		return Response.ok(resultJSONString, MediaType.APPLICATION_JSON).build(); 
 	}
 	
-	public static JSONArray convertToJSON(ResultSet resultSet)
+	public static String convertToJSON(ResultSet resultSet)
             throws Exception {
-        JSONArray jsonArray = new JSONArray();
-        while (resultSet.next()) {
-            int total_rows = resultSet.getMetaData().getColumnCount();
-            for (int i = 0; i < total_rows; i++) {
-                JSONObject obj = new JSONObject();
-                obj.put(resultSet.getMetaData().getColumnLabel(i + 1)
-                        .toLowerCase(), resultSet.getObject(i + 1));
-                jsonArray.put(obj);
-            }
-        }
-        return jsonArray;
+	   ObjectMapper mapper = new ObjectMapper(); 
+       User resultAsUser = new User(); 
+       resultAsUser.setId(resultSet.getInt("id"));
+       resultAsUser.setFirstName(resultSet.getString("firstName"));
+       resultAsUser.setLastName(resultSet.getString("lastName"));
+       String userJSONinString = mapper.writeValueAsString(resultAsUser); 
+       return userJSONinString;
     }
 }
