@@ -2,6 +2,8 @@ package com.restful.users.services;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,6 +11,12 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement; 
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -20,9 +28,18 @@ import com.restful.users.domain.User;
 public class UserResource {
 	private Map<Integer, User> userDB = new ConcurrentHashMap<Integer, User>(); 
 	private AtomicInteger idCounter = new AtomicInteger(); 
-	
 	public UserResource() {
 		
+	}
+	
+	private static Connection getConnection() throws URISyntaxException, SQLException, NullPointerException {
+	    URI dbUri = new URI(System.getenv("DATABASE_URL"));
+
+	    String username = dbUri.getUserInfo().split(":")[0];
+	    String password = dbUri.getUserInfo().split(":")[1];
+	    String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+
+	    return DriverManager.getConnection(dbUrl, username, password);
 	}
 	
 	@GET
@@ -31,6 +48,33 @@ public class UserResource {
 		
 	}
 	
+	@POST
+	@Path("/dbtest")
+	public Response testPostToDb() {
+		try (Connection connection = getConnection()) {
+			String query = "INSERT INTO users(id, firstName, lastName) VALUES(?, ?, ?)";
+			int id = 9999; 
+			String firstName = "james";
+			String lastName = "test";
+    		PreparedStatement pst = connection.prepareStatement(query);
+    		pst.setInt(1,  id);
+    		pst.setString(2, firstName);
+    		pst.setString(3, lastName);
+    		pst.executeUpdate(); 
+    		Statement st = connection.createStatement(); 
+    		ResultSet rs = st.executeQuery("SELECT VERSION()"); 
+    		if (rs.next()) {
+    			System.out.println(rs.getString(1));
+    		}
+    	} catch (SQLException e) {
+    		System.out.println("Connection failure.:");
+    		e.printStackTrace(); 
+    	} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		
+		return Response.ok().build(); 
+	}
 	@POST
 	@Consumes("application/json")
 	public Response createNewUser(InputStream is) {
