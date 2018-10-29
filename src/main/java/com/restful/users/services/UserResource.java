@@ -37,7 +37,7 @@ import com.restful.users.domain.User;
 public class UserResource {
 	private Map<Integer, User> userDB = new ConcurrentHashMap<Integer, User>(); 
 	private AtomicInteger idCounter = new AtomicInteger(); 
-	private String queryToInsertUser = "INSERT INTO users(firstName, lastName) VALUES(?, ?)";
+	private String queryToInsertUser = "INSERT INTO users(firstName, lastName) VALUES(?, ?) RETURNING id";
 	private String queryToGetSpecificUser = "SELECT * FROM users WHERE id = ?"; 
 	public UserResource() {
 		
@@ -75,12 +75,14 @@ public class UserResource {
 		
 		return user; 
 	}
-	public void addUserToDb(User user) {
+	public User addUserToDb(User user) {
 		try (Connection connection = getConnection()) {
 			PreparedStatement pst = connection.prepareStatement(queryToInsertUser);
 			pst.setString(1,  user.getFirstName());
 			pst.setString(2,  user.getLastName());
-			pst.executeUpdate(); 
+			int newUserResults = pst.executeUpdate(); 
+			System.out.println("NEW USER RESULTS: ");
+			System.out.println(newUserResults);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -88,6 +90,8 @@ public class UserResource {
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
+		
+		return user; 
 	}
 	
 	@POST
@@ -97,7 +101,6 @@ public class UserResource {
 		try (Connection connection = getConnection()) {
 			User user = mapper.readValue(is, User.class); 
 			addUserToDb(user); 
-			
 			String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user);
 			return Response.ok(jsonString, MediaType.APPLICATION_JSON).build(); 
 		} catch (JsonParseException e) { e.printStackTrace();}
