@@ -122,6 +122,7 @@ public class UserResource {
 		ResultSet queryResults = getUserFromDb(id); 
 		try {
 			queryResultsToJSON = convertToJSON(queryResults); 
+			System.out.println(queryResultsToJSON);
 		} catch (Exception e) {
 			e.printStackTrace(); 
 		}
