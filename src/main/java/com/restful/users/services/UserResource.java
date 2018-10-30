@@ -86,6 +86,10 @@ public class UserResource {
 		JSONArray queryResultsToJSON = null; 
 		ResultSet queryResults = databaseHelper.getUserFromDb(id); 
 		String resultJSONString = null; 
+		if (queryResults.next() == false) {
+			return Response.status(404).entity("No user exists for the specified ID.").build(); 
+		}
+		
 		try {
 			resultJSONString = convertToJSON(queryResults); 
 			System.out.println(queryResultsToJSON);
@@ -93,9 +97,7 @@ public class UserResource {
 			e.printStackTrace(); 
 		}
 		
-		if (queryResults.next() == false) {
-			return Response.status(404).entity("No user exists for the specified ID.").build(); 
-		}
+		
 		return Response.ok(resultJSONString, MediaType.APPLICATION_JSON).build(); 
 	}
 	
