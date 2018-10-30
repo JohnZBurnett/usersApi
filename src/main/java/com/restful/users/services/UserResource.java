@@ -95,6 +95,11 @@ public class UserResource {
 		
 		System.out.println("RESULT SET: ");
 		System.out.println(queryResults);
+		try {
+			queryResults.next();
+		} catch (SQLException e) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND); 
+		} 
 		return Response.ok(resultJSONString, MediaType.APPLICATION_JSON).build(); 
 	}
 	
