@@ -92,7 +92,8 @@ public class UserResource {
 		
 		try {
 			resultJSONString = convertToJSON(queryResults); 
-			System.out.println(queryResultsToJSON);
+			System.out.println("RESULTS AS JSON");
+			System.out.println(resultJSONString);
 		} catch (Exception e) {
 			e.printStackTrace(); 
 		}
