@@ -59,7 +59,7 @@ public class UserResource {
 	@GET
 	public Response getAllUsers() throws JsonProcessingException, NullPointerException, SQLException, URISyntaxException {
 		ObjectMapper mapper = new ObjectMapper();
-		HashMap<String, ArrayList<User>> resultsMap = getAllUsersFromDb();
+		HashMap<String, ArrayList<User>> resultsMap = databaseHelper.getAllUsersFromDb();
 		String userJSONinString = mapper.writeValueAsString(resultsMap);
 		return Response.ok(userJSONinString).build(); 
 		
@@ -128,7 +128,7 @@ public class UserResource {
 		ObjectMapper mapper = new ObjectMapper(); 
 		try (Connection connection = getConnection()) {
 			User user = mapper.readValue(is, User.class); 
-			user = addUserToDb(user); 
+			user = databaseHelper.addUserToDb(user); 
 			String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user);
 			return Response.ok(jsonString, MediaType.APPLICATION_JSON).build(); 
 		} catch (JsonParseException e) { e.printStackTrace();}
@@ -150,7 +150,7 @@ public class UserResource {
 	public Response getOneUser(@PathParam("id") int id) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		JSONArray queryResultsToJSON = null; 
-		ResultSet queryResults = getUserFromDb(id); 
+		ResultSet queryResults = databaseHelper.getUserFromDb(id); 
 		String resultJSONString = null; 
 		try {
 			resultJSONString = convertToJSON(queryResults); 
