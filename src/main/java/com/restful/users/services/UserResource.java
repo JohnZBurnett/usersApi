@@ -98,6 +98,7 @@ public class UserResource {
 		try {
 			queryResults.next();
 		} catch (SQLException e) {
+			System.out.println("WE HIT THE CATCH");
 			throw new WebApplicationException(Response.Status.NOT_FOUND); 
 		} 
 		return Response.ok(resultJSONString, MediaType.APPLICATION_JSON).build(); 
