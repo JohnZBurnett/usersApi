@@ -93,7 +93,9 @@ public class UserResource {
 			e.printStackTrace(); 
 		}
 		
-
+		if (queryResults == null) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
 		return Response.ok(resultJSONString, MediaType.APPLICATION_JSON).build(); 
 	}
 	
