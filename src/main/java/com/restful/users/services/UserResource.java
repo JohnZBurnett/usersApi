@@ -89,6 +89,7 @@ public class UserResource {
 		if (queryResults.next() == false) {
 			return Response.status(404).entity("No user exists for the specified ID.").build(); 
 		}
+		queryResults.previous(); 
 		
 		try {
 			resultJSONString = convertToJSON(queryResults); 
