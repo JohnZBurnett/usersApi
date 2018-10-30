@@ -42,6 +42,7 @@ public class UserResource {
 	private String queryToInsertUser = "INSERT INTO users(firstName, lastName) VALUES(?, ?) RETURNING id";
 	private String queryToGetSpecificUser = "SELECT * FROM users WHERE id = ?"; 
 	private String queryToGetAllUsers = "SELECT * FROM users";
+	private UserDatabaseHelper databaseHelper = new UserDatabaseHelper(); 
 	public UserResource() {
 		
 	}
@@ -67,7 +68,7 @@ public class UserResource {
 	public HashMap getAllUsersFromDb() throws NullPointerException, SQLException, URISyntaxException {
 		HashMap<String, ArrayList<User>> resultsMap = new HashMap<String, ArrayList<User>>(); 
 		ArrayList userArray = new ArrayList<User>();  
-		PreparedStatement pst = getConnection().prepareStatement(queryToGetAllUsers);
+		PreparedStatement pst = databaseHelper.getConnection().prepareStatement(queryToGetAllUsers);
 		ResultSet queryResults = pst.executeQuery(); 
 		while (queryResults.next()) {
 			User resultAsUser = new User();
