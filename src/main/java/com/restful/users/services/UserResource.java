@@ -94,7 +94,7 @@ public class UserResource {
 		}
 		
 		if (queryResults.next() == false) {
-			return Response.status(404).build(); 
+			return Response.status(404).entity("No user exists for the specified ID.").build(); 
 		}
 		return Response.ok(resultJSONString, MediaType.APPLICATION_JSON).build(); 
 	}
