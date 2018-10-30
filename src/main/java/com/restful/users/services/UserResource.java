@@ -81,7 +81,7 @@ public class UserResource {
 	@GET
 	@Path("{id}")
 	@Produces("application/json")
-	public Response getOneUser(@PathParam("id") int id) throws JsonProcessingException {
+	public Response getOneUser(@PathParam("id") int id) throws JsonProcessingException, SQLException {
 		ObjectMapper mapper = new ObjectMapper();
 		JSONArray queryResultsToJSON = null; 
 		ResultSet queryResults = databaseHelper.getUserFromDb(id); 
@@ -93,14 +93,9 @@ public class UserResource {
 			e.printStackTrace(); 
 		}
 		
-		System.out.println("RESULT SET: ");
-		System.out.println(queryResults);
-		try {
-			queryResults.next();
-		} catch (SQLException e) {
-			System.out.println("WE HIT THE CATCH");
+		if (queryResults.next() == false) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND); 
-		} 
+		}
 		return Response.ok(resultJSONString, MediaType.APPLICATION_JSON).build(); 
 	}
 	
