@@ -86,10 +86,10 @@ public class UserResource {
 		JSONArray queryResultsToJSON = null; 
 		ResultSet queryResults = databaseHelper.getUserFromDb(id); 
 		String resultJSONString = null; 
-		if (queryResults.next() == false) {
-			return Response.status(404).entity("No user exists for the specified ID.").build(); 
-		}
-		queryResults.previous(); 
+		//if (queryResults.next() == false) {
+			//return Response.status(404).entity("No user exists for the specified ID.").build(); 
+		//}
+		//queryResults.previous(); 
 		
 		try {
 			resultJSONString = convertToJSON(queryResults); 
